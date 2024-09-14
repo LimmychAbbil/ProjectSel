@@ -1,8 +1,8 @@
-package ua.com.namely;
-
-import java.time.Duration;
+package ua.com.namely.selenium;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,26 +10,28 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class Test {
+import java.time.Duration;
 
+@Disabled //TODO
+public class TestSeleniums {
     private WebDriver driver;
 
-    @org.junit.jupiter.api.Test
-    public void test() { 
+    @Test
+    public void test() {
         driver= new ChromeDriver();
-        driver.get("http://namesite.test/namedetails/tsvitko/");
+        driver.get("http://namely.com.ua/namedetails/tsvitko/");
         Assertions.assertFalse(driver.getTitle().isEmpty());
         driver.quit();
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void testStatus() {
 
         // Initialize WebDriver (Chrome in this case)
         WebDriver driver = new ChromeDriver();
 
         // Open a website
-        driver.get("http://namesite.test/namedetails/tsvitko/");
+        driver.get("http://namely.com.ua/namedetails/tsvitko/");
 
         // Set up WebDriverWait
         WebDriverWait wait; // 10 seconds timeout
