@@ -1,12 +1,12 @@
 package ua.com.namely;
 
 import lombok.extern.slf4j.Slf4j;
-import ua.com.namely.model.Page;
-import ua.com.namely.model.PageType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import ua.com.namely.model.Page;
+import ua.com.namely.model.PageType;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,17 +18,23 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 @Slf4j
 public class SiteMapReader {
 
+    private static final String RESOURCE_MAP_URL_PATH = "sitemap.xml";
+    private static final String MAIN_URL = "https://namely.com.ua/";
+
     public static List<Page> getSiteMapURLs() throws Exception {
         List<Page> siteMapURLs = new ArrayList<>();
 
-        String mainURL = "https://namely.com.ua"; //TODO reuse application properties (& maven profile)
-        String resourse = "/sitemap.xml"; //TODO can be hardcoded in static final variable
+        Properties properties = new Properties();
+        properties.load(SiteMapReader.class.getResourceAsStream("/application.properties"));
+        String lookupURL = String.valueOf(Optional.of(properties.get("site.main.url")).orElseThrow());
 
-        HttpRequest httpRequest = HttpRequest.newBuilder(new URI(mainURL + resourse)).GET().build();
+        HttpRequest httpRequest = HttpRequest.newBuilder(new URI(MAIN_URL + RESOURCE_MAP_URL_PATH)).GET().build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
@@ -42,14 +48,23 @@ public class SiteMapReader {
 
         NodeList nodeList = xmlDoc.getElementsByTagName("url");
 
+        boolean isSameSite = lookupURL.equals(MAIN_URL);
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             String location = node.getChildNodes().item(1).getTextContent();
+            if (!isSameSite) {
+                StringBuilder locationBuilder = new StringBuilder(lookupURL).append(location.substring(MAIN_URL.length()));
+                location = locationBuilder.toString();
+            }
             PageType type = getPageTypeByURL(location);
             siteMapURLs.add(new Page(location, type));
         }
 
         return siteMapURLs;
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println(getSiteMapURLs());
     }
 
 

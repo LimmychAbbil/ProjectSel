@@ -57,16 +57,20 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <profiles>
         <profile>
             <id>local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
-
+                <site.main.url>http://namesite.test/</site.main.url>
             </properties>
         </profile>
     </profiles>
