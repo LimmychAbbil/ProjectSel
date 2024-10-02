@@ -6,7 +6,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>  
     <groupId>ua.com.namely</groupId>  
     <artifactId>ProjectSel</artifactId>  
-    <version>0.01a-SNAPSHOT</version>
+    <version>0.01a</version>
 
     <developers>
         <developer>
@@ -14,6 +14,10 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
             <url>https://github.com/LimmychAbbil</url>
         </developer>
     </developers>
+
+    <properties>
+        <site.main.url>https://namely.com.ua/</site.main.url>
+    </properties>
 
     <dependencies>
         <dependency>

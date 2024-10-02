@@ -27,12 +27,14 @@ public class SiteMapReader {
     private static final String RESOURCE_MAP_URL_PATH = "sitemap.xml";
     private static final String MAIN_URL = "https://namely.com.ua/";
 
+    private static String lookupUrl;
+
     public static List<Page> getSiteMapURLs() throws Exception {
         List<Page> siteMapURLs = new ArrayList<>();
 
         Properties properties = new Properties();
         properties.load(SiteMapReader.class.getResourceAsStream("/application.properties"));
-        String lookupURL = String.valueOf(Optional.of(properties.get("site.main.url")).orElseThrow());
+        lookupUrl = String.valueOf(Optional.of(properties.get("site.main.url")).orElseThrow());
 
         HttpRequest httpRequest = HttpRequest.newBuilder(new URI(MAIN_URL + RESOURCE_MAP_URL_PATH)).GET().build();
 
@@ -48,12 +50,12 @@ public class SiteMapReader {
 
         NodeList nodeList = xmlDoc.getElementsByTagName("url");
 
-        boolean isSameSite = lookupURL.equals(MAIN_URL);
+        boolean isSameSite = lookupUrl.equals(MAIN_URL);
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             String location = node.getChildNodes().item(1).getTextContent();
             if (!isSameSite) {
-                StringBuilder locationBuilder = new StringBuilder(lookupURL).append(location.substring(MAIN_URL.length()));
+                StringBuilder locationBuilder = new StringBuilder(lookupUrl).append(location.substring(MAIN_URL.length()));
                 location = locationBuilder.toString();
             }
             PageType type = getPageTypeByURL(location);
@@ -77,7 +79,7 @@ public class SiteMapReader {
             return PageType.ALPHABET;
         } else if (location.contains("/blog/") || location.endsWith("/blog")) {
             return PageType.BLOG;
-        } else if (location.equals("https://namely.com.ua/") || location.equals("https://namely.com.ua/en/")){
+        } else if (location.equals(lookupUrl) || location.equals(lookupUrl + "en/")){
             return PageType.MAIN;
         } else if (location.contains("/namedetails/")) {
             return PageType.NAME;
