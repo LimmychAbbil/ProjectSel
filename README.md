@@ -1,6 +1,6 @@
 ### Namely tests
 
-This project is used to execute tests for http://namely.com.ua either for web or local versions.
+This project is used to execute tests for https://namely.com.ua either for web or local versions.
 
 #### Prerequisites
 
@@ -10,4 +10,4 @@ This project is used to execute tests for http://namely.com.ua either for web or
 
 #### How to start
 
-- In project root execute `mvn test` to run all tests on web version or `mvn test -P local` to use the local version. 
+- In project root execute `mvn clean test` to run all tests on web version or `mvn clean test -P local` to use the local version. 
