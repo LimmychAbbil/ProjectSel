@@ -1,3 +1,5 @@
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/LimmychAbbil/ProjectSel/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/LimmychAbbil/ProjectSel/tree/master)
+
 ### Namely tests
 
 This project is used to execute tests for https://namely.com.ua either for web or local versions.
