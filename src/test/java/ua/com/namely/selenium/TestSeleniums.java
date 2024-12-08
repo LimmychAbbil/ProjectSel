@@ -5,6 +5,7 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WindowType;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
@@ -38,20 +39,24 @@ public class TestSeleniums {
     }
 
     @Test
-    public void testLikeTheNameFromNamePageOpensLikedWindow() {
-
+    void testLikeTheNameFromNamePageOpensLikedWindow() {
         Page namePage = pageList.stream().filter(page -> page.getPageType() == PageType.NAME).findAny().orElseThrow();
+        findLikeButtonAndClick(namePage.getLocation());
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        wait.until(d -> d.findElement(By.className("modal-content")).isDisplayed());
+    }
+
+    @Test
+    void testLikeIsKeptOnNewTab() {
+        Page namePage = pageList.stream().filter(page -> page.getPageType() == PageType.NAME).findAny().orElseThrow();
+        findLikeButtonAndClick(namePage.getLocation());
+
+        driver.switchTo().newWindow(WindowType.TAB);
         driver.get(namePage.getLocation());
 
-        Assertions.assertFalse(driver.findElement(By.className("modal-content")).isDisplayed());
+        WebElement heartElementDiv = driver.findElement(By.className("favorites-header"));
+        Assertions.assertEquals("1", heartElementDiv.getText());
 
-        WebElement likeButton = driver.findElement(By.className("fa-heart-o"));
-
-        Assertions.assertNotNull(likeButton);
-
-        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-        likeButton.click();
-        wait.until(d -> d.findElement(By.className("modal-content")).isDisplayed());
     }
 
     @Test
@@ -85,5 +90,17 @@ public class TestSeleniums {
         if (driver != null) {
             driver.quit();
         }
+    }
+
+    private void findLikeButtonAndClick(String location) {
+        driver.get(location);
+
+        Assertions.assertFalse(driver.findElement(By.className("modal-content")).isDisplayed());
+
+        WebElement likeButton = driver.findElement(By.className("fa-heart-o"));
+
+        Assertions.assertNotNull(likeButton);
+
+        likeButton.click();
     }
 }
