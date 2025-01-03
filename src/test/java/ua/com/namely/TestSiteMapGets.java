@@ -44,7 +44,8 @@ public class TestSiteMapGets {
                 (page -> {
                     count.incrementAndGet();
                     HttpResponse<String> response = executeGET(page);
-                    Assertions.assertEquals(200, response.statusCode());
+                    Assertions.assertEquals(200, response.statusCode(),
+                            "Response code was not 200 for page " + page.getLocation());
                 }));
 
         Assertions.assertEquals(2 * 30 + 2 * 24, count.get());
@@ -65,7 +66,8 @@ public class TestSiteMapGets {
 
             usedIndexes.add(index);
             HttpResponse<String> response = executeGET(namePages.get(index));
-            Assertions.assertEquals(200, response.statusCode());
+            Assertions.assertEquals(200, response.statusCode(),
+                    "Response code was not 200 for page " + namePages.get(index).getLocation());
         }
     }
 

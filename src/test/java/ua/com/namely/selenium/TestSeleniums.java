@@ -60,6 +60,20 @@ public class TestSeleniums {
     }
 
     @Test
+    void testMainPageContainsBlogBlock() {
+        String blogHeaderUA = "Статті блогу";
+        driver.get(pageList.stream().filter(page ->
+                page.getPageType().equals(PageType.MAIN)).findAny().get().getLocation());
+
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        WebElement footer = wait.until(d -> d.findElement(By.className("footer-item")));
+        Assertions.assertTrue(footer.getText().contains(blogHeaderUA));
+        WebElement linksDiv = footer.findElement(By.className("links"));
+        List<WebElement> links = linksDiv.findElements(By.tagName("a"));
+        Assertions.assertFalse(links.isEmpty(), "Expected blog links is not empty");
+    }
+
+    @Test
     @Disabled(value = "This is just an example")
     public void testExample() {
 
