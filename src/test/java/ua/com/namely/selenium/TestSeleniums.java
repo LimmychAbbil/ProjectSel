@@ -56,7 +56,9 @@ public class TestSeleniums {
         driver.get(namePage.getLocation());
 
         WebElement heartElementDiv = driver.findElement(By.className("favorites-header"));
-        Assertions.assertEquals("1", heartElementDiv.getText());
+        Assertions.assertEquals("1", heartElementDiv.getText(),
+                "There should be 1 liked name, but actual value of heart element dir was "
+                        + heartElementDiv.getText());
 
     }
 
@@ -69,7 +71,8 @@ public class TestSeleniums {
 
         Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         WebElement footer = wait.until(d -> d.findElement(By.className("footer-item")));
-        Assertions.assertTrue(footer.getText().contains(blogHeaderUA));
+        Assertions.assertTrue(footer.getText().contains(blogHeaderUA),
+                "Footer div should have contained " + blogHeaderUA + " but was " + footer.getText());
         WebElement linksDiv = footer.findElement(By.className("links"));
         List<WebElement> links = linksDiv.findElements(By.tagName("a"));
         Assertions.assertFalse(links.isEmpty(), "Expected blog links is not empty");
