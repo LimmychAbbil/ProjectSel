@@ -5,6 +5,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import ua.com.namely.model.Lang;
 import ua.com.namely.model.Page;
 import ua.com.namely.model.PageType;
 
@@ -59,10 +60,15 @@ public class SiteMapReader {
                 location = locationBuilder.toString();
             }
             PageType type = getPageTypeByURL(location);
-            siteMapURLs.add(new Page(location, type));
+            Lang language = getLang(location);
+            siteMapURLs.add(new Page(location, type, language));
         }
 
         return siteMapURLs;
+    }
+
+    private static Lang getLang(String location) {
+        return location.contains("/en/") ? Lang.EN : Lang.UA;
     }
 
     public static void main(String[] args) throws Exception {

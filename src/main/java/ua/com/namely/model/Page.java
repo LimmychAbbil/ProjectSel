@@ -9,5 +9,6 @@ public class Page {
 
     private String location;
     private PageType pageType;
+    private Lang language;
 
 }

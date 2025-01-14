@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ua.com.namely.SiteMapReader;
+import ua.com.namely.model.Lang;
 import ua.com.namely.model.Page;
 import ua.com.namely.model.PageType;
 
@@ -63,7 +64,8 @@ public class TestSeleniums {
     void testMainPageContainsBlogBlock() {
         String blogHeaderUA = "Статті блогу";
         driver.get(pageList.stream().filter(page ->
-                page.getPageType().equals(PageType.MAIN)).findAny().get().getLocation());
+                page.getPageType().equals(PageType.MAIN) && page.getLanguage().equals(Lang.UA))
+                .findFirst().get().getLocation());
 
         Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         WebElement footer = wait.until(d -> d.findElement(By.className("footer-item")));
