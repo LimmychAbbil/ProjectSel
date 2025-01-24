@@ -33,18 +33,12 @@ public class SiteMapReader {
     public static List<Page> getSiteMapURLs() throws Exception {
         List<Page> siteMapURLs = new ArrayList<>();
 
-        Properties properties = new Properties();
-        properties.load(SiteMapReader.class.getResourceAsStream("/application.properties"));
-        lookupUrl = String.valueOf(Optional.of(properties.get("site.main.url")).orElseThrow());
-
-        HttpRequest httpRequest = HttpRequest.newBuilder(new URI(MAIN_URL + RESOURCE_MAP_URL_PATH)).GET().build();
-
-        HttpResponse<String> response = HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        String siteMapBody = getSiteMapAsString();
 
         DocumentBuilder builder = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
         Document xmlDoc = null;
         try {
-            xmlDoc = builder.parse(new ByteArrayInputStream(response.body().getBytes(StandardCharsets.UTF_8)));
+            xmlDoc = builder.parse(new ByteArrayInputStream(siteMapBody.getBytes(StandardCharsets.UTF_8)));
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
@@ -67,6 +61,19 @@ public class SiteMapReader {
         return siteMapURLs;
     }
 
+    protected static String getSiteMapAsString() throws Exception {
+        Properties properties = new Properties();
+        properties.load(SiteMapReader.class.getResourceAsStream("/application.properties"));
+        lookupUrl = java.lang.String.valueOf(Optional.of(properties.get("site.main.url")).orElseThrow());
+
+        HttpRequest httpRequest = HttpRequest.newBuilder(new URI(MAIN_URL + RESOURCE_MAP_URL_PATH)).GET().build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+        return response.body();
+    }
+
+
     private static Lang getLang(String location) {
         return location.contains("/en/") ? Lang.EN : Lang.UA;
     }
@@ -81,7 +88,7 @@ public class SiteMapReader {
             return PageType.UNKNOWN;
         } else if (location.endsWith("boys/") || location.endsWith("girls/")) {
             return PageType.GENDER;
-        } else if (location.contains("/boys/") || location.contains("/girls")) {
+        } else if (location.contains("/boys/") || location.contains("/girls/")) {
             return PageType.ALPHABET;
         } else if (location.contains("/blog/") || location.endsWith("/blog")) {
             return PageType.BLOG;

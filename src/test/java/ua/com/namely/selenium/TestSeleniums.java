@@ -2,11 +2,14 @@ package ua.com.namely.selenium;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WindowType;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -26,7 +29,7 @@ public class TestSeleniums {
 
     private static List<Page> pageList;
 
-    private WebDriver driver;
+    private static WebDriver driver;
 
     @BeforeAll
     public static void setUp() throws Exception {
@@ -36,7 +39,17 @@ public class TestSeleniums {
 
     @BeforeEach
     public void setUpDriver() {
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        if (!"true".equalsIgnoreCase(System.getProperty("browser.visible"))) {
+            options.addArguments("--headless");
+            options.addArguments("--nogpu");
+            options.addArguments("--disable-gpu");
+        }
+
+        options.addArguments("--enable-javascript");
+        options.addArguments("--user-agent=Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0");
+
+        driver = new ChromeDriver(options);
     }
 
     @Test
@@ -76,6 +89,21 @@ public class TestSeleniums {
         WebElement linksDiv = footer.findElement(By.className("links"));
         List<WebElement> links = linksDiv.findElements(By.tagName("a"));
         Assertions.assertFalse(links.isEmpty(), "Expected blog links is not empty");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PageType.class, names = {"MAIN", "GENDER", "ALPHABET"})
+    void testPageContainsSearch(PageType pageType) {
+        String pageURL = pageList.stream()
+                .filter(page -> page.getPageType().equals(pageType) && page.getLanguage() == Lang.UA)
+                .findAny().get().getLocation();
+
+        driver.get(pageURL);
+
+        WebElement searchDiv = driver.findElement(By.id("app-search"));
+
+        Assertions.assertEquals(1, searchDiv.findElements(By.tagName("input")).size());
+        Assertions.assertEquals(1, searchDiv.findElements(By.tagName("button")).size());
     }
 
     @Test

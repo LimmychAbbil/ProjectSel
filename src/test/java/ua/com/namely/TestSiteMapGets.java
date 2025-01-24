@@ -38,7 +38,7 @@ public class TestSiteMapGets {
     }
 
     @Test
-    void readAlphabetPages() {
+    void readAlphabetPages() throws Exception {
         AtomicInteger count = new AtomicInteger(0);
         siteMap.stream().filter(page -> page.getPageType().equals(PageType.ALPHABET)).parallel().forEach(
                 (page -> {
@@ -48,7 +48,9 @@ public class TestSiteMapGets {
                             "Response code was not 200 for page " + page.getLocation());
                 }));
 
-        Assertions.assertEquals(2 * 30 + 2 * 24, count.get());
+        String siteMapContent = SiteMapReader.getSiteMapAsString();
+
+        Assertions.assertEquals(siteMapContent.split("/alphabate/", -1).length - 1, count.get());
     }
 
     @ParameterizedTest
