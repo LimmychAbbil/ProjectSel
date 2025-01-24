@@ -6,7 +6,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>  
     <groupId>ua.com.namely</groupId>  
     <artifactId>ProjectSel</artifactId>  
-    <version>0.01d-SNAPSHOT</version>
+    <version>0.01d</version>
 
     <developers>
         <developer>
@@ -41,7 +41,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.27.0</version>
+            <version>4.28.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
