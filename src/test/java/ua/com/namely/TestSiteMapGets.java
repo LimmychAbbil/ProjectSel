@@ -73,6 +73,17 @@ public class TestSiteMapGets {
         }
     }
 
+    @Test
+    void readBlogPages() {
+        siteMap.stream().filter(page -> page.getPageType().equals(PageType.BLOG))
+                .filter(page -> page.getLocation().endsWith("/")).parallel().forEach(
+                (page -> {
+                    HttpResponse<String> response = executeGET(page);
+                    Assertions.assertEquals(200, response.statusCode(),
+                            "Response code was not 200 for page " + page.getLocation());
+                }));;
+    }
+
     private HttpResponse<String> executeGET(Page page) {
         log.info("GET for {}", page);
         try {

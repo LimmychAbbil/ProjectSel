@@ -1,5 +1,6 @@
 package ua.com.namely.selenium;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 @EnabledIfSystemProperty(named = TestSeleniums.MAVEN_PROFILE_KEY, matches = "true")
+@Slf4j
 public class TestSeleniums {
 
     protected static final String MAVEN_PROFILE_KEY = "projectSel.selenium.enabled";
@@ -95,7 +97,7 @@ public class TestSeleniums {
     @EnumSource(value = PageType.class, names = {"MAIN", "GENDER", "ALPHABET"})
     void testPageContainsSearch(PageType pageType) {
         String pageURL = pageList.stream()
-                .filter(page -> page.getPageType().equals(pageType) && page.getLanguage() == Lang.UA)
+                .filter(page -> page.getPageType() == pageType && page.getLanguage() == Lang.UA)
                 .findAny().get().getLocation();
 
         driver.get(pageURL);
@@ -104,6 +106,40 @@ public class TestSeleniums {
 
         Assertions.assertEquals(1, searchDiv.findElements(By.tagName("input")).size());
         Assertions.assertEquals(1, searchDiv.findElements(By.tagName("button")).size());
+    }
+
+    @Test
+    void testSearchForRandomNameReturnsThatName() {
+        Page mainPage = pageList.stream()
+                .filter(page -> page.getPageType() == PageType.MAIN && page.getLanguage() == Lang.UA)
+                .findAny().get();
+
+        List<Page> allUaNamePages = pageList.stream()
+                .filter(page -> page.getPageType() == PageType.NAME && page.getLanguage() == Lang.UA).toList();
+
+
+        Page randomNamePage = allUaNamePages.get((int) Math.round(Math.random() * allUaNamePages.size()));
+        driver.get(randomNamePage.getLocation());
+        String name = driver.findElement(By.id("app")).getText();
+
+        driver.switchTo().newWindow(WindowType.TAB).get(mainPage.getLocation());
+        WebElement searchDiv = driver.findElement(By.id("app-search"));
+        WebElement searchTextInput = searchDiv.findElement(By.tagName("input"));
+        WebElement searchButton = searchDiv.findElement(By.tagName("button"));
+        searchTextInput.sendKeys(name);
+        searchButton.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        WebElement searchResultListOL = wait.until(driver -> driver.findElement(By.id("app-search")).findElement(By.tagName("ol")));
+
+        Assertions.assertNotNull(searchResultListOL,
+                "app-search div result doesn't contain element for name " + name);
+        List<WebElement> searchResultListLI = searchResultListOL.findElements(By.tagName("li"));
+        Assertions.assertTrue(!searchResultListLI.isEmpty() && searchResultListLI.size() <= 20,
+                "We expect at least 1 and no more that 20 search results for name " + name);
+        Assertions.assertTrue(searchResultListLI.get(0).getText().contains(name),
+                "The first <li> element in search result should contain " + name);
     }
 
     @Test
