@@ -5,10 +5,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.WindowType;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -140,6 +137,34 @@ public class TestSeleniums {
                 "We expect at least 1 and no more that 20 search results for name " + name);
         Assertions.assertTrue(searchResultListLI.get(0).getText().contains(name),
                 "The first <li> element in search result should contain " + name);
+    }
+
+    @Test
+    void testMapDivContainsMapDescription() {
+        List<Page> namePages = pageList.stream().filter(page -> page.getPageType() == PageType.NAME).toList();
+
+        WebElement mapDiv = null;
+        int i = 0;
+        do {
+            Page namePage = namePages.get(i++);
+            driver.get(namePage.getLocation());
+            try {
+                mapDiv = driver.findElement(By.id("app-country-map"));
+            } catch (WebDriverException e) {
+                log.debug("No map found for " + namePage.getLocation() + ", continuing test");
+            }
+        } while (mapDiv == null || i == namePages.size());
+
+        Assertions.assertNotNull(mapDiv, "Name map div with id 'app-country-map' not found on every name page");
+
+        WebElement ul = mapDiv.findElement(By.tagName("ul"));
+        List<WebElement> liList = ul.findElements(By.tagName("li"));
+        Assertions.assertNotNull(liList, "UL tag in map div block doesn't contain any li element");
+        Assertions.assertFalse(liList.isEmpty(), "UL tag in map div block doesn't contain any li element");
+        liList.forEach(webElement ->
+                Assertions.assertEquals("list-group-item", webElement.getDomAttribute("class"),
+                        "LI element class for map description is not 'list-group-item'"));
+
     }
 
     @Test
