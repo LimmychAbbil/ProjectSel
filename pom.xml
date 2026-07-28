@@ -6,7 +6,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>  
     <groupId>ua.com.namely</groupId>  
     <artifactId>ProjectSel</artifactId>  
-    <version>0.01f-SNAPSHOT</version>
+    <version>0.01f</version>
 
     <developers>
         <developer>
@@ -16,6 +16,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     </developers>
 
     <properties>
+		<surefire.version>3.5.6</surefire.version>
         <site.main.url>https://namely.com.ua/</site.main.url>
         <browser.visible>false</browser.visible>
     </properties>
@@ -62,6 +63,19 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <target>17</target>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${surefire.version}</version>
+				<configuration>
+					<systemProperties>
+						<property>
+							<name>testing.names.number</name>
+							<value>${testing.names.number}</value>
+						</property>
+					</systemProperties>
+				</configuration>
+			</plugin>
         </plugins>
 
         <resources>
@@ -86,7 +100,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.5.2</version>
+                        <version>${surefire.version}</version>
                         <configuration>
                             <systemPropertyVariables>
                                 <projectSel.selenium.enabled>true</projectSel.selenium.enabled>

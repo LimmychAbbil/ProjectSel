@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import ua.com.namely.model.Page;
 import ua.com.namely.model.PageType;
@@ -15,11 +17,15 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 @Slf4j
 public class TestSiteMapGets {
+
+	private static final int DEFAULT_NUMBER_OF_RANDOM_PAGES = 15;
 
     private static List<Page> siteMap;
 
@@ -54,7 +60,7 @@ public class TestSiteMapGets {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {15})
+	@MethodSource("getParameterForNumberOfRandomNamePages")
     void readRandomNamePages(int number) {
         Set<Integer> usedIndexes = new HashSet<>();
         List<Page> namePages = siteMap.stream().filter(page -> page.getPageType().equals(PageType.NAME)).toList();
@@ -72,6 +78,16 @@ public class TestSiteMapGets {
                     "Response code was not 200 for page " + namePages.get(index).getLocation());
         }
     }
+
+	private static Stream<Arguments> getParameterForNumberOfRandomNamePages() {
+		int parameterValue = DEFAULT_NUMBER_OF_RANDOM_PAGES;
+		try {
+			 parameterValue = Integer.parseInt(System.getProperty("testing.names.number"));
+		} catch (NumberFormatException ignored) {
+			// use default instead
+		}
+		return Stream.of(Arguments.of(parameterValue));
+	}
 
     @Test
     void readBlogPages() {

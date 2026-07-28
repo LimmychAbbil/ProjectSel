@@ -26,7 +26,6 @@ import java.util.Properties;
 public class SiteMapReader {
 
     private static final String RESOURCE_MAP_URL_PATH = "sitemap.xml";
-    private static final String MAIN_URL = "https://namely.com.ua/";
 
     private static String lookupUrl;
 
@@ -45,14 +44,12 @@ public class SiteMapReader {
 
         NodeList nodeList = xmlDoc.getElementsByTagName("url");
 
-        boolean isSameSite = lookupUrl.equals(MAIN_URL);
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            String location = node.getChildNodes().item(1).getTextContent();
-            if (!isSameSite) {
-                StringBuilder locationBuilder = new StringBuilder(lookupUrl).append(location.substring(MAIN_URL.length()));
-                location = locationBuilder.toString();
-            }
+            String locationText = node.getChildNodes().item(1).getTextContent();
+			URI locationURI = new URI(locationText);
+			String location = lookupUrl + locationURI.getPath().substring(1); // Remove leading slash from path
+            
             PageType type = getPageTypeByURL(location);
             Lang language = getLang(location);
             siteMapURLs.add(new Page(location, type, language));
@@ -64,9 +61,11 @@ public class SiteMapReader {
     protected static String getSiteMapAsString() throws Exception {
         Properties properties = new Properties();
         properties.load(SiteMapReader.class.getResourceAsStream("/application.properties"));
-        lookupUrl = java.lang.String.valueOf(Optional.of(properties.get("site.main.url")).orElseThrow());
+        lookupUrl = java.lang.String.valueOf(
+			Optional.of(properties.get("site.main.url"))
+			.orElseThrow(() -> new IllegalStateException("Property 'site.main.url' not found in application.properties")));
 
-        HttpRequest httpRequest = HttpRequest.newBuilder(new URI(MAIN_URL + RESOURCE_MAP_URL_PATH)).GET().build();
+        HttpRequest httpRequest = HttpRequest.newBuilder(new URI(lookupUrl + RESOURCE_MAP_URL_PATH)).GET().build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
