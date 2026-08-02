@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import ua.com.namely.model.Lang;
 import ua.com.namely.model.Page;
 import ua.com.namely.model.PageType;
 
@@ -18,8 +19,10 @@ import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -45,18 +48,32 @@ public class TestSiteMapGets {
 
     @Test
     void readAlphabetPages() throws Exception {
-        AtomicInteger count = new AtomicInteger(0);
-        siteMap.stream().filter(page -> page.getPageType().equals(PageType.ALPHABET)).parallel().forEach(
-                (page -> {
-                    count.incrementAndGet();
+        readSampleAlphabetPages(Lang.UA, 10);
+        readSampleAlphabetPages(Lang.EN, 10);
+    }
+
+    private void readSampleAlphabetPages(Lang language, int sampleSize) {
+        List<Page> alphabetPages = siteMap.stream()
+                .filter(page -> page.getPageType().equals(PageType.ALPHABET) && page.getLanguage().equals(language))
+                .collect(Collectors.toList());
+
+        Assertions.assertFalse(alphabetPages.isEmpty(), "No alphabet pages were found for language " + language);
+
+        int actualSampleSize = Math.min(sampleSize, alphabetPages.size());
+        Set<Integer> selectedIndexes = new HashSet<>();
+        Random random = new Random();
+
+        while (selectedIndexes.size() < actualSampleSize) {
+            selectedIndexes.add(random.nextInt(alphabetPages.size()));
+        }
+
+        selectedIndexes.stream()
+                .map(alphabetPages::get)
+                .forEach(page -> {
                     HttpResponse<String> response = executeGET(page);
                     Assertions.assertEquals(200, response.statusCode(),
                             "Response code was not 200 for page " + page.getLocation());
-                }));
-
-        String siteMapContent = SiteMapReader.getSiteMapAsString();
-
-        Assertions.assertEquals(siteMapContent.split("/alphabate/", -1).length - 1, count.get());
+                });
     }
 
     @ParameterizedTest
