@@ -116,9 +116,9 @@ public class TestSiteMapGets {
     }
 
     private HttpResponse<String> executeGET(Page page) {
-        log.info("GET for {}", page);
         try {
             String urlWithAnalytics = appendAnalyticsParam(page.getLocation());
+            log.info("GET for {} -> {}", page.getLocation(), urlWithAnalytics);
             HttpRequest httpRequest = HttpRequest.newBuilder(new URI(urlWithAnalytics)).GET().build();
             return HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
@@ -132,9 +132,13 @@ public class TestSiteMapGets {
             return url;
         }
         if (url.contains("?")) {
-            return url + "&" + analytics;
+            String result = url + "&" + analytics;
+            log.info("GET URL with analytics: {}", result);
+            return result;
         } else {
-            return url + "?" + analytics;
+            String result = url + "?" + analytics;
+            log.info("GET URL with analytics: {}", result);
+            return result;
         }
     }
 }

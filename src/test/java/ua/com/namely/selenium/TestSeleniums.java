@@ -65,7 +65,7 @@ public class TestSeleniums {
         findLikeButtonAndClick(namePage.getLocation());
 
         driver.switchTo().newWindow(WindowType.TAB);
-        driver.get(namePage.getLocation());
+        driver.get(appendAnalyticsParam(namePage.getLocation()));
 
         WebElement heartElementDiv = driver.findElement(By.className("favorites-header"));
         Assertions.assertEquals("1", heartElementDiv.getText(),
@@ -205,11 +205,14 @@ public class TestSeleniums {
         if (analytics == null || analytics.isEmpty()) {
             return url;
         }
+        final String result;
         if (url.contains("?")) {
-            return url + "&" + analytics;
+            result = url + "&" + analytics;
         } else {
-            return url + "?" + analytics;
+            result = url + "?" + analytics;
         }
+        log.info("Browser GET URL: {}", result);
+        return result;
     }
 
     private void findLikeButtonAndClick(String location) {
