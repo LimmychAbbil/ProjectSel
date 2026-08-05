@@ -77,9 +77,9 @@ public class TestSeleniums {
     @Test
     void testMainPageContainsBlogBlock() {
         String blogHeaderUA = "Статті блогу";
-        driver.get(pageList.stream().filter(page ->
-                page.getPageType().equals(PageType.MAIN) && page.getLanguage().equals(Lang.UA))
-                .findFirst().get().getLocation());
+        driver.get(appendAnalyticsParam(pageList.stream().filter(page ->
+            page.getPageType().equals(PageType.MAIN) && page.getLanguage().equals(Lang.UA))
+            .findFirst().get().getLocation()));
 
         Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         WebElement footer = wait.until(d -> d.findElement(By.className("footer-item")));
@@ -97,7 +97,7 @@ public class TestSeleniums {
                 .filter(page -> page.getPageType() == pageType && page.getLanguage() == Lang.UA)
                 .findAny().get().getLocation();
 
-        driver.get(pageURL);
+        driver.get(appendAnalyticsParam(pageURL));
 
         WebElement searchDiv = driver.findElement(By.id("app-search"));
 
@@ -116,10 +116,10 @@ public class TestSeleniums {
 
 
         Page randomNamePage = allUaNamePages.get((int) Math.round(Math.random() * allUaNamePages.size()));
-        driver.get(randomNamePage.getLocation());
+        driver.get(appendAnalyticsParam(randomNamePage.getLocation()));
         String name = driver.findElement(By.id("app")).getText();
 
-        driver.switchTo().newWindow(WindowType.TAB).get(mainPage.getLocation());
+        driver.switchTo().newWindow(WindowType.TAB).get(appendAnalyticsParam(mainPage.getLocation()));
         WebElement searchDiv = driver.findElement(By.id("app-search"));
         WebElement searchTextInput = searchDiv.findElement(By.tagName("input"));
         WebElement searchButton = searchDiv.findElement(By.tagName("button"));
@@ -147,7 +147,7 @@ public class TestSeleniums {
         int i = 0;
         do {
             Page namePage = namePages.get(i++);
-            driver.get(namePage.getLocation());
+            driver.get(appendAnalyticsParam(namePage.getLocation()));
             try {
                 mapDiv = driver.findElement(By.id("app-country-map"));
             } catch (WebDriverException e) {
@@ -175,7 +175,7 @@ public class TestSeleniums {
         driver = new ChromeDriver();
 
         // Open a website
-        driver.get("http://namely.com.ua/namedetails/tsvitko/");
+        driver.get(appendAnalyticsParam("http://namely.com.ua/namedetails/tsvitko/"));
 
         // Set up WebDriverWait
         WebDriverWait wait; // 10 seconds timeout
@@ -200,8 +200,20 @@ public class TestSeleniums {
         }
     }
 
+    private String appendAnalyticsParam(String url) {
+        String analytics = System.getProperty("testing.analytics", "utm_source=test-suite");
+        if (analytics == null || analytics.isEmpty()) {
+            return url;
+        }
+        if (url.contains("?")) {
+            return url + "&" + analytics;
+        } else {
+            return url + "?" + analytics;
+        }
+    }
+
     private void findLikeButtonAndClick(String location) {
-        driver.get(location);
+        driver.get(appendAnalyticsParam(location));
 
         Assertions.assertFalse(driver.findElement(By.className("modal-content")).isDisplayed());
 

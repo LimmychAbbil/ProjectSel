@@ -79,15 +79,18 @@ public class TestSiteMapGets {
     @ParameterizedTest
 	@MethodSource("getParameterForNumberOfRandomNamePages")
     void readRandomNamePages(int number) {
-        Set<Integer> usedIndexes = new HashSet<>();
         List<Page> namePages = siteMap.stream().filter(page -> page.getPageType().equals(PageType.NAME)).toList();
+        Assertions.assertFalse(namePages.isEmpty(), "No name pages found in the sitemap");
 
-        for (int i = 0; i < number; i++) {
+        int checks = Math.min(number, namePages.size());
+        Set<Integer> usedIndexes = new HashSet<>();
+        Random random = new Random();
+
+        for (int i = 0; i < checks; i++) {
             int index;
             do {
-                 index = (int) Math.round(Math.random() * namePages.size());
-            }
-            while (usedIndexes.contains(index));
+                index = random.nextInt(namePages.size());
+            } while (usedIndexes.contains(index));
 
             usedIndexes.add(index);
             HttpResponse<String> response = executeGET(namePages.get(index));
@@ -97,12 +100,7 @@ public class TestSiteMapGets {
     }
 
 	private static Stream<Arguments> getParameterForNumberOfRandomNamePages() {
-		int parameterValue = DEFAULT_NUMBER_OF_RANDOM_PAGES;
-		try {
-			 parameterValue = Integer.parseInt(System.getProperty("testing.names.number"));
-		} catch (NumberFormatException ignored) {
-			// use default instead
-		}
+		int parameterValue = Integer.getInteger("testing.names.number", DEFAULT_NUMBER_OF_RANDOM_PAGES);
 		return Stream.of(Arguments.of(parameterValue));
 	}
 
@@ -120,10 +118,23 @@ public class TestSiteMapGets {
     private HttpResponse<String> executeGET(Page page) {
         log.info("GET for {}", page);
         try {
-            HttpRequest httpRequest = HttpRequest.newBuilder(new URI(page.getLocation())).GET().build();
+            String urlWithAnalytics = appendAnalyticsParam(page.getLocation());
+            HttpRequest httpRequest = HttpRequest.newBuilder(new URI(urlWithAnalytics)).GET().build();
             return HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private String appendAnalyticsParam(String url) {
+        String analytics = System.getProperty("testing.analytics", "utm_source=test-suite");
+        if (analytics == null || analytics.isEmpty()) {
+            return url;
+        }
+        if (url.contains("?")) {
+            return url + "&" + analytics;
+        } else {
+            return url + "?" + analytics;
         }
     }
 }
